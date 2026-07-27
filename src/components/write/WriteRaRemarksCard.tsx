@@ -51,13 +51,9 @@ export const WriteRaRemarksCard: React.FC<WriteRaRemarksCardProps> = ({
         <Text size="xs" fw={800}>
           WRITE RA REMARKS
         </Text>
-        <Badge size="xs" variant="light" color={primaryColor}>
-          ADDON
-        </Badge>
       </Group>
 
       <Textarea
-        label="Remittance Advice Remarks"
         placeholder="Type RA remarks for eligible activities..."
         size="xs"
         minRows={2}

@@ -68,7 +68,6 @@ export const WriteOffCard: React.FC<WriteOffCardProps> = ({
       </Group>
 
       <Textarea
-        label="Write-Off Remarks / Reason"
         placeholder="Enter mandatory write-off remarks or financial justification..."
         size="xs"
         minRows={2}

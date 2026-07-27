@@ -10,7 +10,7 @@ import {
   useMantineColorScheme,
   useComputedColorScheme
 } from '@mantine/core'
-import { FileText, Zap, Activity, Sun, Moon, Settings } from 'lucide-react'
+import { FileText, Zap, Activity, Sun, Moon, Settings, Terminal } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 import { useThemeStore } from '../theme'
 import { AppCard } from './common/AppCard'
@@ -115,6 +115,12 @@ export function NavigationTabs({ encounterData }: NavigationTabsProps) {
               leftSection={<Activity size={13} color={`var(--mantine-color-${primaryColor}-filled)`} />}
             >
               LOGS
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="dev"
+              leftSection={<Terminal size={13} color={`var(--mantine-color-${primaryColor}-filled)`} />}
+            >
+              DEV
             </Tabs.Tab>
           </Tabs.List>
         </Tabs>

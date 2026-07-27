@@ -17,6 +17,7 @@ import { ActivitiesTable } from './components/ActivitiesTable'
 import { ClaimHistoryTable } from './components/ClaimHistoryTable'
 import { RemarksAndResubmissionsCard } from './components/RemarksAndResubmissionsCard'
 import { WriteWorkspace } from './components/write/WriteWorkspace'
+import { DevControlsView } from './components/DevControlsView'
 import { PatientBanner } from './components/PatientBanner'
 import { HeaderSearchBar } from './components/HeaderSearchBar'
 import { loggerService } from './services/LoggerService'
@@ -163,7 +164,11 @@ export default function App() {
             </Suspense>
           </Box>
 
-          {!encounterData && activeTab !== 'logs' ? (
+          <Box style={{ flex: 1, overflow: 'hidden', display: activeTab === 'dev' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>
+            <DevControlsView />
+          </Box>
+
+          {!encounterData && activeTab !== 'logs' && activeTab !== 'dev' ? (
             <Center flex={1} h="100%">
               <Stack align="center" gap="md">
                 <Database size={36} color="gray" style={{ opacity: 0.3 }} />

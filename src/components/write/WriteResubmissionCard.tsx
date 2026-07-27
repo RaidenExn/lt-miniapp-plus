@@ -65,38 +65,34 @@ export const WriteResubmissionCard: React.FC<WriteResubmissionCardProps> = ({
           <Text size="xs" fw={800}>
             WRITE RESUB
           </Text>
-          <Badge size="xs" variant="light" color={primaryColor}>
-            ADDON
-          </Badge>
         </Group>
 
-        <Select
-          size="xs"
-          w={160}
-          aria-label="Resubmission Type"
-          data={[
-            { value: '1', label: '1 - Correction' },
-            { value: '2', label: '2 - Internal Complaints' },
-            { value: '3', label: '3 - Reconciliation' }
-          ]}
-          value={resubmitType}
-          onChange={(val) => setResubmitType(val || '1')}
-        />
+        <Group gap="xs">
+          <Select
+            size="xs"
+            w={140}
+            aria-label="Resubmission Type"
+            data={[
+              { value: '1', label: '1 - Correction' },
+              { value: '2', label: '2 - Internal Complaints' },
+              { value: '3', label: '3 - Reconciliation' }
+            ]}
+            value={resubmitType}
+            onChange={(val) => setResubmitType(val || '1')}
+          />
+          <Select
+            size="xs"
+            w={180}
+            aria-label="RA File / XML"
+            placeholder="Select RA File"
+            data={fileOptions}
+            value={raFileId}
+            onChange={(val) => setRaFileId(val || '')}
+          />
+        </Group>
       </Group>
 
-      <Box mb="xs">
-        <Select
-          label="Remittance Advice (RA) File"
-          size="xs"
-          placeholder="Select RA File"
-          data={fileOptions}
-          value={raFileId}
-          onChange={(val) => setRaFileId(val || '')}
-        />
-      </Box>
-
       <Textarea
-        label="Resubmission Comments"
         placeholder="Enter detailed resubmission comments or justification..."
         size="xs"
         minRows={2}
