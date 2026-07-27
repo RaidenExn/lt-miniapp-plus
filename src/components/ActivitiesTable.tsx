@@ -40,8 +40,9 @@ const mapRaStatus = (row: ActivityItem): string => {
   if (!row) return 'Billed'
   if (row.derived_ra_status) {
     const s = String(row.derived_ra_status).trim()
-    if (s.toLowerCase() === 'full remittance') return 'Full RA'
-    if (s.toLowerCase() === 'partial remittance') return 'Partial RA'
+    if (s.toLowerCase() === 'full remittance' || s.toLowerCase() === 'full ra') return 'Full RA'
+    if (s.toLowerCase() === 'partial remittance' || s.toLowerCase() === 'partial ra') return 'Partial RA'
+    if (s.toLowerCase() === 'denied' || s.toLowerCase() === 'denial') return 'Denial'
     return s
   }
   const claimGross = num(row.claim_net_payable || row.claim_net_pay || row.gross_amount)
@@ -51,16 +52,44 @@ const mapRaStatus = (row: ActivityItem): string => {
   const raPatient = num(row.ra_pat_payable || row.ra_patient_share)
   const raPayer = num(row.ra_payer_payable || row.ra_payer_share)
 
-  if (row._has_ra || row.ra_id_payer || row.payment_ref || raPayer !== 0 || raGross !== 0) {
+  const hasExplicitRa =
+    !!row._has_ra ||
+    !!row.ra_id_payer ||
+    !!row.payment_ref ||
+    raPayer !== 0 ||
+    raGross !== 0 ||
+    ((row.claim_denial_code || '').trim() !== '' && (row.claim_denial_desc || '').trim() !== '')
+
+  if (hasExplicitRa) {
     if (raPayer < 0) return 'Recovery'
     if (claimPayer > 0 && raPayer > claimPayer) return 'RA Error'
-    if (claimPayer > 0 && raPayer === claimPayer) return 'Full RA'
+    if (claimPayer > 0 && raPayer > 0 && raPayer === claimPayer) return 'Full RA'
     if (claimPayer > 0 && raPayer > 0 && raPayer < claimPayer) return 'Partial RA'
     if (claimPayer > 0 && raPayer === 0) return 'Denial'
-    if ((row.claim_denial_code || '').trim() !== '') return 'Denial'
+
+    const isDenied = (row.claim_denial_code || '').trim() !== '' || Number(row.claim_auth_status) === 2
+    if (isDenied) return 'Denial'
+
     return row.status || 'Remitted'
   }
-  return row._has_submission || Number(row.claim_resubmission_count || 0) > 0 ? 'Submitted' : 'Billed'
+
+  const isSubmitted =
+    !!row._has_submission ||
+    Number(row.claim_resubmission_count || 0) > 0 ||
+    !!row.submitted_date ||
+    !!row.resubmission_date
+
+  return isSubmitted ? 'Submitted' : 'Billed'
+}
+
+const isRowActionEligible = (row: ActivityItem): boolean => {
+  if (Number(row.pending_for_write_off || 0) === 2) return false
+  const raStatusStr = mapRaStatus(row)
+  if (raStatusStr === 'Denial' || raStatusStr === 'Partial RA') return true
+  const rejAmt = num(row.total_rej_amount || row.rej_amount)
+  if (rejAmt > 0) return true
+  if (Number(row.claim_auth_status) === 2 || Number(row.claim_is_partial_activity) === 1) return true
+  return String(row.claim_denial_code || '').trim() !== ''
 }
 
 const getRaStatusRank = (statusStr: string): number => {
@@ -186,7 +215,7 @@ export function ActivitiesTable({ activities = [], claimHistory = [] }: Activiti
             )}
 
             <Table.Td style={{ padding: '2px 6px' }}>
-              {isWriteEnabled ? (
+              {isWriteEnabled && isRowActionEligible(act) ? (
                 <Select
                   size="xs"
                   w={80}
