@@ -331,6 +331,128 @@ class EhrService {
       downloadUrl: `${cleanHost}/SCMS/web/app.php/lab/0/batch/null/type/4/encounter/${encounterId}/result/0/attachment/${item.attachment_id}/download`
     }))
   }
+
+  async saveResubmissionReason(selectedRow: any, reqBody: any): Promise<any> {
+    const encounterId = Number(selectedRow.encounterid || selectedRow.encounter_id || selectedRow.enc_id || selectedRow.encounterId || 0)
+    const patientId = Number(selectedRow.patient_id || selectedRow.patientid || 0)
+    const receiverId = Number(selectedRow.receiver_id || selectedRow.payer_id || 0)
+    const appointmentId = Number(selectedRow.appointment_id || selectedRow.apnt_id || 0) || null
+
+    const body = {
+      resubmitReasonId: Number(reqBody.resubmitReasonId || 0),
+      createdBy: this.settings.userId || 1089,
+      encounterId,
+      appointmentId,
+      patientId,
+      reasonDesc: String(reqBody.comments || '').trim(),
+      reasonTxn: 1,
+      reasonType: Number(reqBody.resubmitType || 1),
+      correctionId: Number(reqBody.resubmitType || 1),
+      correction_id: Number(reqBody.resubmitType || 1),
+      isActive: 1,
+      schemaId: 2,
+      isTopUpCard: 0,
+      payerId: receiverId,
+      fileId: Number(reqBody.raFileId) || null,
+      attachment: reqBody.attachmentBase64 || ''
+    }
+
+    const res = await this.ehrPost(EHR_ENDPOINTS.addResubmissionReason, body)
+    if (!res?.body?.Success && res?.body?.status_value !== 1) {
+      throw new Error(res?.body?.Error || res?.body?.message || 'Failed to save resubmission reason')
+    }
+    return res.body
+  }
+
+  async saveRaRemarks(selectedRow: any, reqBody: any): Promise<any> {
+    const encounterId = Number(selectedRow.encounterid || selectedRow.encounter_id || selectedRow.enc_id || selectedRow.encounterId || 0)
+    const patientId = Number(selectedRow.patient_id || selectedRow.patientid || 0)
+    const siteId = Number(selectedRow._site_id || selectedRow.siteid || this.settings.siteId)
+
+    const body = {
+      encounterId,
+      patientId,
+      siteId,
+      createdBy: this.settings.userId || 1089,
+      tabStatusId: reqBody.tabStatusId || 1,
+      writeOffObj: reqBody.writeOffObj || [],
+      resubmissionObj: reqBody.resubmissionObj || [],
+      activityCloseObj: reqBody.activityCloseObj || [],
+      reSubmissionPendingAmount: reqBody.reSubmissionPendingAmount || '0.00',
+      writeOffPendingAmount: reqBody.writeOffPendingAmount || '0.00',
+      isTopupCardTab: 0,
+      remarksRA: reqBody.remarks || '',
+      remarks_ra: reqBody.remarks || '',
+      remarksWriteOff: reqBody.remarksWriteOff || '',
+      remarks_write_off: reqBody.remarksWriteOff || '',
+      remarksReSub: reqBody.remarksReSub || '',
+      remarks_resub: reqBody.remarksReSub || '',
+      remarksPatPayAR: reqBody.remarksPatPayAR || '',
+      remarks_pat_pay_ar: reqBody.remarksPatPayAR || ''
+    }
+
+    const res = await this.ehrPost(EHR_ENDPOINTS.saveClaimRemarks, body)
+    if (!res?.body?.Success && res?.body?.status_value !== 1) {
+      throw new Error(res?.body?.Error || res?.body?.message || 'Failed to save RA remarks')
+    }
+    return res.body
+  }
+
+  async postWriteOff(selectedRow: any, reqBody: any): Promise<any> {
+    const encounterId = Number(selectedRow.encounterid || selectedRow.encounter_id || selectedRow.enc_id || selectedRow.encounterId || 0)
+    const patientId = Number(selectedRow.patient_id || selectedRow.patientid || 0)
+    const siteId = Number(selectedRow._site_id || selectedRow.siteid || this.settings.siteId)
+    const receiverId = Number(selectedRow.receiver_id || selectedRow.payer_id || 0)
+
+    const updateBody = {
+      encounterId,
+      patientId,
+      siteId,
+      createdBy: this.settings.userId || 1089,
+      tabStatusId: 2,
+      writeOffObj: reqBody.writeOffObj || [],
+      resubmissionObj: reqBody.resubmissionObj || [],
+      activityCloseObj: reqBody.activityCloseObj || [],
+      reSubmissionPendingAmount: reqBody.reSubmissionPendingAmount || '0.00',
+      writeOffPendingAmount: reqBody.writeOffPendingAmount || '0.00',
+      isTopupCardTab: 0,
+      remarksRA: reqBody.remarksRA || '',
+      remarks_ra: reqBody.remarksRA || '',
+      remarksWriteOff: reqBody.remarks || '',
+      remarks_write_off: reqBody.remarks || '',
+      remarksReSub: reqBody.remarksReSub || '',
+      remarks_resub: reqBody.remarksReSub || '',
+      remarksPatPayAR: reqBody.remarksPatPayAR || '',
+      remarks_pat_pay_ar: reqBody.remarksPatPayAR || ''
+    }
+
+    const res1 = await this.ehrPost(EHR_ENDPOINTS.saveClaimRemarks, updateBody)
+    if (!res1?.body?.Success && res1?.body?.status_value !== 1) {
+      throw new Error(res1?.body?.Error || res1?.body?.message || 'Phase 1: Failed to update write-off remarks')
+    }
+
+    if (reqBody.writeOffItems && reqBody.writeOffItems.length > 0) {
+      const ledgerBody = {
+        type: 2,
+        siteId,
+        createdBy: this.settings.userId || 1089,
+        items: reqBody.writeOffItems,
+        reason: reqBody.remarks || 'Write Off',
+        writeAmount: reqBody.writeAmount || 0,
+        recType: 2,
+        billId: encounterId,
+        receiverId,
+        writeOffOn: dayjs().format('DD-MM-YYYY')
+      }
+
+      const res2 = await this.ehrPost(EHR_ENDPOINTS.writeOffLedger, ledgerBody)
+      if (!res2?.body?.Success && res2?.body?.status_value !== 1) {
+        throw new Error(res2?.body?.Error || res2?.body?.message || 'Phase 2: Financial ledger write-off posting failed')
+      }
+    }
+
+    return { success: true }
+  }
 }
 
 export const ehrService = new EhrService()

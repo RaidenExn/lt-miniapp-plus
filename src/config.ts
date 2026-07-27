@@ -32,6 +32,9 @@ export const EHR_ENDPOINTS = {
   claimRemarks: 'claim/remarks/get',
   resubmissionFiles: 'claim/history/file/details/get',
   resubmissionReasons: 'resubmission/reason/get',
+  addResubmissionReason: 'add/resubmission/reason',
+  saveClaimRemarks: 'claim/marked/for/write/off/update',
+  writeOffLedger: 'accrec/account/receivable/write/off',
 
   // PDF summary print endpoint route builder
   pdfSummaryPath: (

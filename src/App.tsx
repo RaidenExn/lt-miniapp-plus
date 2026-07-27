@@ -16,6 +16,7 @@ import { NavigationTabs } from './components/NavigationTabs'
 import { ActivitiesTable } from './components/ActivitiesTable'
 import { ClaimHistoryTable } from './components/ClaimHistoryTable'
 import { RemarksAndResubmissionsCard } from './components/RemarksAndResubmissionsCard'
+import { WriteActionCardsContainer } from './components/write/WriteActionCardsContainer'
 import { PatientBanner } from './components/PatientBanner'
 import { HeaderSearchBar } from './components/HeaderSearchBar'
 import { loggerService } from './services/LoggerService'
@@ -174,6 +175,7 @@ export default function App() {
                   <Stack gap="md">
                     <ActivitiesTable activities={encounterData.activities} claimHistory={encounterData.remittanceHistory} />
                     <RemarksAndResubmissionsCard remarks={encounterData.remarks || encounterData.claimRemarks} resubmissions={encounterData.resubmissionFiles} resubmissionReasons={encounterData.resubmissionReasons} claimHistory={encounterData.remittanceHistory} />
+                    <WriteActionCardsContainer encounterData={encounterData} primaryColor={primaryColor} />
                     <ClaimHistoryTable claimHistory={encounterData.remittanceHistory} />
                   </Stack>
                 </Box>
