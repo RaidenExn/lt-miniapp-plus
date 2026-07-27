@@ -13,6 +13,9 @@ export interface WriteConfigState {
   writeRole: string
   capabilities: WriteCapabilities
   configSource: 'default' | 'uploaded' | 'none'
+  rowActions: Record<string, string>
+  setRowAction: (authId: string, action: string) => void
+  clearRowActions: () => void
   setWriteConfig: (config: {
     writeEnabled?: boolean
     writeUserId?: number
@@ -36,6 +39,17 @@ export const useWriteConfigStore = create<WriteConfigState>((set) => ({
   writeRole: 'Billing Officer (Dev)',
   capabilities: DEFAULT_DEV_CAPABILITIES,
   configSource: 'default',
+  rowActions: {},
+
+  setRowAction: (authId, action) =>
+    set((state) => ({
+      rowActions: {
+        ...state.rowActions,
+        [authId]: action
+      }
+    })),
+
+  clearRowActions: () => set({ rowActions: {} }),
 
   setWriteConfig: (config) =>
     set({
@@ -60,6 +74,7 @@ export const useWriteConfigStore = create<WriteConfigState>((set) => ({
         postWriteOff: false,
         bypassStatusLocks: false
       },
-      configSource: 'none'
+      configSource: 'none',
+      rowActions: {}
     })
 }))

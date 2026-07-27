@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Table, Text, Tooltip, Select } from '@mantine/core'
+import { useMemo } from 'react'
+import { Table, Text, Tooltip, Badge, Group } from '@mantine/core'
 import { derivePriorAuthCode } from '../utils/rcmHelpers'
 import { DataTableCard } from './common/DataTableCard'
 import { fmtCurrency } from '../utils/formatters'
@@ -111,7 +111,8 @@ const getRaStatusColor = (statusStr: string, claimGross: number): { color?: stri
 
 export function ActivitiesTable({ activities = [], claimHistory = [] }: ActivitiesTableProps) {
   const isWriteEnabled = useWriteConfigStore((state) => state.isWriteEnabled)
-  const [rowActions, setRowActions] = useState<Record<string, string>>({})
+  const rowActions = useWriteConfigStore((state) => state.rowActions)
+  const setRowAction = useWriteConfigStore((state) => state.setRowAction)
 
   const showRaColumns = useMemo(() => {
     const hasHistoryRa = claimHistory?.some((row) =>
@@ -164,15 +165,15 @@ export function ActivitiesTable({ activities = [], claimHistory = [] }: Activiti
         { label: 'RA.Pay', align: 'right', width: 75 },
         { label: 'RA.Grs', align: 'right', width: 75 },
         { label: 'Rej', align: 'right', width: 75 },
-        { label: 'St.', align: 'left', width: 90 },
+        { label: 'St.', align: 'left', width: isWriteEnabled ? 135 : 85 },
         { label: 'RA St.', align: 'left', width: 85 },
         { label: 'Denial', align: 'left', width: 90 }
       )
     } else {
-      cols.push({ label: 'St.', align: 'left', width: 85 })
+      cols.push({ label: 'St.', align: 'left', width: isWriteEnabled ? 135 : 85 })
     }
     return cols
-  }, [showRaColumns])
+  }, [showRaColumns, isWriteEnabled])
 
   return (
     <DataTableCard title="CLINICAL ACTIVITIES" count={sortedActivities?.length || 0} columns={columns} isEmpty={!sortedActivities || sortedActivities.length === 0} emptyText="No Clinical Activities recorded." maxHeight={500} verticalSpacing={2} horizontalSpacing="xs">
@@ -192,7 +193,7 @@ export function ActivitiesTable({ activities = [], claimHistory = [] }: Activiti
 
         const raStatusStr = mapRaStatus(act)
         const raStyle = getRaStatusColor(raStatusStr, claimGross)
-        const authId = String(act.order_authorization_id || idx)
+        const authId = String(act.order_authorization_id || act.id || idx)
 
         return (
           <Table.Tr key={cpt + idx}>
@@ -216,18 +217,35 @@ export function ActivitiesTable({ activities = [], claimHistory = [] }: Activiti
 
             <Table.Td style={{ padding: '2px 6px' }}>
               {isWriteEnabled && isRowActionEligible(act) ? (
-                <Select
-                  size="xs"
-                  w={80}
-                  data={[
-                    { value: 'none', label: act.activity_status || 'Completed' },
-                    { value: 're-sub', label: 'Resub' },
-                    { value: 'w-off', label: 'Write-off' },
-                    { value: 'close', label: 'Close' }
-                  ]}
-                  value={rowActions[authId] || 'none'}
-                  onChange={(val) => setRowActions({ ...rowActions, [authId]: val || 'none' })}
-                />
+                <Group gap={3} wrap="nowrap">
+                  <Badge
+                    size="xs"
+                    variant={rowActions[authId] === 're-sub' ? 'filled' : 'outline'}
+                    color="orange"
+                    style={{ cursor: 'pointer', padding: '0 4px', height: '18px', fontSize: '9px', textTransform: 'none' }}
+                    onClick={() => setRowAction(authId, rowActions[authId] === 're-sub' ? 'none' : 're-sub')}
+                  >
+                    Resub
+                  </Badge>
+                  <Badge
+                    size="xs"
+                    variant={rowActions[authId] === 'w-off' ? 'filled' : 'outline'}
+                    color="red"
+                    style={{ cursor: 'pointer', padding: '0 4px', height: '18px', fontSize: '9px', textTransform: 'none' }}
+                    onClick={() => setRowAction(authId, rowActions[authId] === 'w-off' ? 'none' : 'w-off')}
+                  >
+                    W-off
+                  </Badge>
+                  <Badge
+                    size="xs"
+                    variant={rowActions[authId] === 'close' ? 'filled' : 'outline'}
+                    color="gray"
+                    style={{ cursor: 'pointer', padding: '0 4px', height: '18px', fontSize: '9px', textTransform: 'none' }}
+                    onClick={() => setRowAction(authId, rowActions[authId] === 'close' ? 'none' : 'close')}
+                  >
+                    Close
+                  </Badge>
+                </Group>
               ) : (
                 <Text size="xs">{act.activity_status || act.status || 'Completed'}</Text>
               )}
