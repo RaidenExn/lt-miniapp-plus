@@ -16,11 +16,12 @@ import { NavigationTabs } from './components/NavigationTabs'
 import { ActivitiesTable } from './components/ActivitiesTable'
 import { ClaimHistoryTable } from './components/ClaimHistoryTable'
 import { RemarksAndResubmissionsCard } from './components/RemarksAndResubmissionsCard'
-import { WriteActionCardsContainer } from './components/write/WriteActionCardsContainer'
+import { WriteWorkspace } from './components/write/WriteWorkspace'
 import { PatientBanner } from './components/PatientBanner'
 import { HeaderSearchBar } from './components/HeaderSearchBar'
 import { loggerService } from './services/LoggerService'
 import { useAppStore, getTabFromUrl } from './store/useAppStore'
+import { useWriteConfigStore } from './store/useWriteConfigStore'
 import { useThemeStore } from './theme'
 
 const LogsView = lazy(() => import('./components/LogsView').then((m) => ({ default: m.LogsView })))
@@ -47,6 +48,7 @@ export default function App() {
   const queryClient = useQueryClient()
   const { searchQuery, setSearchQuery, popoverOpened, setPopoverOpened, setShowSettings, cachedList, loadCachedList, activeTab, setActiveTab } = useAppStore()
   const primaryColor = useThemeStore((state) => state.primaryColor)
+  const isWriteEnabled = useWriteConfigStore((state) => state.isWriteEnabled)
 
   const [activeEncounterNo, setActiveEncounterNo] = useState('')
   const lastNotifiedEncounter = useRef<string | null>(null)
@@ -174,8 +176,11 @@ export default function App() {
                 <Box p="md" style={{ flex: 1, overflowY: 'auto', display: activeTab === 'activities' ? 'block' : 'none', height: '100%' }}>
                   <Stack gap="md">
                     <ActivitiesTable activities={encounterData.activities} claimHistory={encounterData.remittanceHistory} />
-                    <RemarksAndResubmissionsCard remarks={encounterData.remarks || encounterData.claimRemarks} resubmissions={encounterData.resubmissionFiles} resubmissionReasons={encounterData.resubmissionReasons} claimHistory={encounterData.remittanceHistory} />
-                    <WriteActionCardsContainer encounterData={encounterData} primaryColor={primaryColor} />
+                    {isWriteEnabled ? (
+                      <WriteWorkspace encounterData={encounterData} primaryColor={primaryColor} />
+                    ) : (
+                      <RemarksAndResubmissionsCard remarks={encounterData.remarks || encounterData.claimRemarks} resubmissions={encounterData.resubmissionFiles} resubmissionReasons={encounterData.resubmissionReasons} claimHistory={encounterData.remittanceHistory} />
+                    )}
                     <ClaimHistoryTable claimHistory={encounterData.remittanceHistory} />
                   </Stack>
                 </Box>

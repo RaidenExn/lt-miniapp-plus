@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Group, Text, Select, Textarea, Button, Badge } from '@mantine/core'
+import { Group, Text, Select, Textarea, Button, Badge, Box } from '@mantine/core'
 import { FileEdit, Send } from 'lucide-react'
 import { AppCard } from '../common/AppCard'
 import { ehrService } from '../../services/EhrService'
@@ -59,20 +59,21 @@ export const WriteResubmissionCard: React.FC<WriteResubmissionCardProps> = ({
 
   return (
     <AppCard p="sm">
-      <Group gap="xs" mb="xs" pb="xs" style={{ borderBottom: '1px solid var(--mantine-color-border)' }}>
-        <FileEdit size={14} color={`var(--mantine-color-${primaryColor}-filled)`} />
-        <Text size="xs" fw={800}>
-          WRITE RESUBMISSION REASON
-        </Text>
-        <Badge size="xs" variant="light" color={primaryColor}>
-          ADDON
-        </Badge>
-      </Group>
+      <Group justify="space-between" align="center" mb="xs" pb="xs" style={{ borderBottom: '1px solid var(--mantine-color-border)' }}>
+        <Group gap="xs">
+          <FileEdit size={14} color={`var(--mantine-color-${primaryColor}-filled)`} />
+          <Text size="xs" fw={800}>
+            WRITE RESUB
+          </Text>
+          <Badge size="xs" variant="light" color={primaryColor}>
+            ADDON
+          </Badge>
+        </Group>
 
-      <Group grow align="flex-start" mb="xs">
         <Select
-          label="Resubmission Type"
           size="xs"
+          w={160}
+          aria-label="Resubmission Type"
           data={[
             { value: '1', label: '1 - Correction' },
             { value: '2', label: '2 - Internal Complaints' },
@@ -81,6 +82,9 @@ export const WriteResubmissionCard: React.FC<WriteResubmissionCardProps> = ({
           value={resubmitType}
           onChange={(val) => setResubmitType(val || '1')}
         />
+      </Group>
+
+      <Box mb="xs">
         <Select
           label="Remittance Advice (RA) File"
           size="xs"
@@ -89,7 +93,7 @@ export const WriteResubmissionCard: React.FC<WriteResubmissionCardProps> = ({
           value={raFileId}
           onChange={(val) => setRaFileId(val || '')}
         />
-      </Group>
+      </Box>
 
       <Textarea
         label="Resubmission Comments"
