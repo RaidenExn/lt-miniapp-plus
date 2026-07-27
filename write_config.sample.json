@@ -1,0 +1,12 @@
+{
+  "writeEnabled": true,
+  "writeUserId": 1089,
+  "writeRole": "Billing Officer",
+  "writeCapabilities": {
+    "saveRaRemarks": true,
+    "saveResubmissionReason": true,
+    "postWriteOff": true,
+    "bypassStatusLocks": true
+  },
+  "description": "Sample EMR Write Addon Configuration for LT-MiniApp Plus"
+}
