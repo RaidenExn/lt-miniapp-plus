@@ -24,10 +24,22 @@ export const WriteResubmissionCard: React.FC<WriteResubmissionCardProps> = ({
   const selectedRow = encounterData?.selected
   const resubFiles = encounterData?.resubmissionFiles || []
 
-  const fileOptions = resubFiles.map((file: any) => ({
-    value: String(file.file_id || file.fileId || file.id || ''),
-    label: `${file.file_name || file.fileName || 'RA File'} (${file.created_on || file.date || ''})`
-  }))
+  const fileOptions = React.useMemo(() => {
+    return resubFiles.map((file: any) => {
+      const name = file.file_name || file.fileName || file.ra_file_name || 'RA File'
+      const date = file.created_on || file.createdOn || file.date || file.transact_date || ''
+      return {
+        value: String(file.file_id || file.fileId || file.id || ''),
+        label: date ? `${name} (${date})` : name
+      }
+    })
+  }, [resubFiles])
+
+  React.useEffect(() => {
+    if (fileOptions.length > 0 && !raFileId) {
+      setRaFileId(fileOptions[0].value)
+    }
+  }, [fileOptions, raFileId])
 
   const handleSubmit = async () => {
     if (!comments.trim()) {
