@@ -1,0 +1,37 @@
+{
+  "name": "lt-miniapp-plus",
+  "private": true,
+  "version": "1.0.0-plus",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "deploy": "bun run build && bun x gh-pages -d dist",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" index.html package.json"
+  },
+  "dependencies": {
+    "@mantine/core": "latest",
+    "@mantine/dates": "latest",
+    "@mantine/hooks": "latest",
+    "@mantine/notifications": "latest",
+    "@tanstack/react-query": "latest",
+    "dayjs": "latest",
+    "idb": "latest",
+    "ky": "latest",
+    "lucide-react": "latest",
+    "pino": "^10.3.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "zustand": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "gh-pages": "latest",
+    "prettier": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

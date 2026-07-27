@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Production Build Output
+dist/
+
+# Local Environment Overrides
+.env*.local
+*.log
+
+# Editor Settings & OS Files
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
